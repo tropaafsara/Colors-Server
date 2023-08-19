@@ -11,7 +11,7 @@ app.use(express.json());
 
 
 
-// Mongodb connection starts from here ------------------------------------------------------------
+// Mongodb starts from here ------------------------------------------------------------
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.c9tdfjs.mongodb.net/?retryWrites=true&w=majority`;
 
@@ -28,6 +28,35 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+    
+    const colorsCollection = client.db('colorDB').collection('colors');
+
+
+    // app.get("/searchBycolor/:text", async (req, res) => {
+    //   const searchText = req.params.text;
+    //   const result = await colorsCollection
+    //     .find({
+    //       $or: [
+    //         { toyName: { $regex: searchText, $options: "i" } },
+    //       ],
+    //     })
+    //     .toArray();
+    //   res.send(result);
+    // });
+
+
+
+    app.get('/colors', async (req, res) => {
+      const cursor = colorsCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+  })
+    app.post('/colors', async (req, res) => {
+      const newColors = req.body;
+      console.log(newColors);
+      const result = await colorsCollection.insertOne(newColors);
+      res.send(result);
+  })
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
